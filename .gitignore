@@ -1,0 +1,45 @@
+# Local tooling
+.codex/
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Root env files
+.env
+.env.local
+.env.*.local
+
+# Frontend
+frontend/node_modules/
+frontend/apps/web/.nuxt/
+frontend/apps/web/.output/
+frontend/apps/admin/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Backend
+backend/node_modules/
+backend/dist/
+backend/coverage/
+backend/.env
+backend/.env.local
+backend/.env.*.local
+backend/prisma/dev.db
+
+# Generic dependency/build folders
+node_modules/
+dist/
+coverage/

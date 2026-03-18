@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@blog/shared-types": [
+        "packages/shared-types/src"
+      ],
+      "@blog/shared-utils": [
+        "packages/shared-utils/src"
+      ],
+      "@blog/ui": [
+        "packages/ui/src"
+      ]
+    }
+  }
+}

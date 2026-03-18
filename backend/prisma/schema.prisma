@@ -1,0 +1,241 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            BigInt         @id @default(autoincrement())
+  username      String         @unique @db.VarChar(50)
+  passwordHash  String         @map("password_hash") @db.VarChar(255)
+  displayName   String?        @map("display_name") @db.VarChar(100)
+  email         String?        @unique @db.VarChar(150)
+  avatar        String?        @db.VarChar(500)
+  refreshToken  String?        @map("refresh_token") @db.VarChar(500)
+  isActive      Boolean        @default(true) @map("is_active")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  operationLogs OperationLog[]
+  posts         Post[]
+
+  @@map("users")
+}
+
+model Post {
+  id             BigInt         @id @default(autoincrement())
+  title          String         @db.VarChar(200)
+  slug           String         @unique @db.VarChar(200)
+  summary        String?        @db.VarChar(500)
+  cover          String?        @db.VarChar(500)
+  status         PostStatus     @default(DRAFT)
+  authorId       BigInt         @map("author_id")
+  publishedAt    DateTime?      @map("published_at")
+  isTop          Boolean        @default(false) @map("is_top")
+  seoTitle       String?        @map("seo_title") @db.VarChar(200)
+  seoKeywords    String?        @map("seo_keywords") @db.VarChar(300)
+  seoDescription String?        @map("seo_description") @db.VarChar(500)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  postCategories PostCategory[]
+  content        PostContent?
+  postTags       PostTag[]
+  author         User           @relation(fields: [authorId], references: [id])
+  visitStats     VisitStat[]
+
+  @@index([status, publishedAt], map: "idx_posts_status_published_at")
+  @@index([title], map: "idx_posts_title")
+  @@map("posts")
+}
+
+model PostContent {
+  id              BigInt   @id @default(autoincrement())
+  postId          BigInt   @unique @map("post_id")
+  markdownContent String   @map("markdown_content")
+  htmlContent     String?  @map("html_content")
+  tocJson         Json?    @map("toc_json")
+  wordCount       Int      @default(0) @map("word_count")
+  readingTime     Int      @default(0) @map("reading_time")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  post            Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_contents")
+}
+
+model Category {
+  id             BigInt         @id @default(autoincrement())
+  name           String         @db.VarChar(100)
+  slug           String         @unique @db.VarChar(100)
+  description    String?        @db.VarChar(500)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  postCategories PostCategory[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        BigInt    @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  slug      String    @unique @db.VarChar(100)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  postTags  PostTag[]
+
+  @@map("tags")
+}
+
+model PostCategory {
+  postId     BigInt   @map("post_id")
+  categoryId BigInt   @map("category_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  category   Category @relation(fields: [categoryId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+  @@index([postId], map: "idx_post_categories_post_id")
+  @@map("post_categories")
+}
+
+model PostTag {
+  postId     BigInt   @map("post_id")
+  tagId      BigInt   @map("tag_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+  @@index([postId], map: "idx_post_tags_post_id")
+  @@map("post_tags")
+}
+
+model Page {
+  id             BigInt     @id @default(autoincrement())
+  pageKey        String     @unique @map("page_key") @db.VarChar(100)
+  title          String     @db.VarChar(200)
+  slug           String     @unique @db.VarChar(200)
+  summary        String?    @db.VarChar(500)
+  content        String?
+  status         PageStatus @default(DRAFT)
+  seoTitle       String?    @map("seo_title") @db.VarChar(200)
+  seoKeywords    String?    @map("seo_keywords") @db.VarChar(300)
+  seoDescription String?    @map("seo_description") @db.VarChar(500)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  @@map("pages")
+}
+
+model Project {
+  id         BigInt        @id @default(autoincrement())
+  title      String        @db.VarChar(200)
+  slug       String        @unique @db.VarChar(200)
+  summary    String?       @db.VarChar(500)
+  content    String?
+  cover      String?       @db.VarChar(500)
+  repoUrl    String?       @map("repo_url") @db.VarChar(500)
+  previewUrl String?       @map("preview_url") @db.VarChar(500)
+  status     ProjectStatus @default(DRAFT)
+  sortOrder  Int           @default(0) @map("sort_order")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  @@map("projects")
+}
+
+model SiteSetting {
+  id              BigInt   @id @default(autoincrement())
+  siteName        String   @map("site_name") @db.VarChar(200)
+  siteDescription String?  @map("site_description") @db.VarChar(500)
+  siteUrl         String?  @map("site_url") @db.VarChar(255)
+  logo            String?  @db.VarChar(500)
+  favicon         String?  @db.VarChar(500)
+  seoTitle        String?  @map("seo_title") @db.VarChar(200)
+  seoKeywords     String?  @map("seo_keywords") @db.VarChar(300)
+  seoDescription  String?  @map("seo_description") @db.VarChar(500)
+  skills          Json?
+  experiences     Json?
+  contactEmail    String?  @map("contact_email") @db.VarChar(200)
+  socialLinks     Json?    @map("social_links")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+model MediaFile {
+  id           BigInt       @id @default(autoincrement())
+  filename     String       @db.VarChar(255)
+  originalName String       @map("original_name") @db.VarChar(255)
+  mimeType     String       @map("mime_type") @db.VarChar(100)
+  storage      MediaStorage @default(LOCAL)
+  path         String       @db.VarChar(500)
+  size         Int
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@map("media_files")
+}
+
+model VisitStat {
+  id        BigInt   @id @default(autoincrement())
+  postId    BigInt?  @map("post_id")
+  path      String   @db.VarChar(255)
+  ip        String?  @db.VarChar(64)
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  visitedAt DateTime @default(now()) @map("visited_at")
+  post      Post?    @relation(fields: [postId], references: [id])
+
+  @@map("visit_stats")
+}
+
+model SearchLog {
+  id          BigInt   @id @default(autoincrement())
+  keyword     String   @db.VarChar(100)
+  resultCount Int      @default(0) @map("result_count")
+  searchedAt  DateTime @default(now()) @map("searched_at")
+
+  @@index([keyword], map: "idx_search_logs_keyword")
+  @@map("search_logs")
+}
+
+model OperationLog {
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt?  @map("user_id")
+  action     String   @db.VarChar(100)
+  resource   String   @db.VarChar(100)
+  resourceId String?  @map("resource_id") @db.VarChar(100)
+  detail     Json?
+  ip         String?  @db.VarChar(64)
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@map("operation_logs")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MediaStorage {
+  LOCAL
+  S3
+  OSS
+  MINIO
+}

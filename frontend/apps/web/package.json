@@ -1,0 +1,22 @@
+{
+  "name": "@blog/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@blog/shared-types": "*",
+    "@blog/shared-utils": "*",
+    "@pinia/nuxt": "^0.11.1",
+    "nuxt": "^3.17.2",
+    "pinia": "^3.0.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "sass": "^1.86.3"
+  }
+}
