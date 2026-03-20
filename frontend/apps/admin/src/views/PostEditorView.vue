@@ -439,7 +439,7 @@ onBeforeRouteLeave(async () => {
       label-position="top"
     >
       <div class="toolbar toolbar--between post-editor-status">
-        <span class="meta-badge">{{ isDirty ? '有未保存修改' : '已与后端同步' }}</span>
+        <span class="meta-badge">{{ isDirty ? '有未保存修改' : '已同步' }}</span>
         <small class="hint-text">{{ autoSaveHint }}</small>
       </div>
 
@@ -551,7 +551,7 @@ onBeforeRouteLeave(async () => {
                 ref="bodyEditorRef"
                 v-model="form.bodyText"
                 type="textarea"
-                :autosize="{ minRows: 18, maxRows: 36 }"
+                :autosize="{ minRows: 18}"
                 placeholder="支持 Markdown，建议按小节组织内容。"
                 @keydown="onBodyEditorKeydown"
               />
