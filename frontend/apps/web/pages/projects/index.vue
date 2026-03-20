@@ -4,7 +4,7 @@ import { fetchPublicProjects } from '~/services/api'
 const { data: projects } = await useAsyncData('projects', fetchPublicProjects)
 
 useSeoMeta({
-  title: '项目',
+  title: '项目管理',
   description: '浏览博客作者的项目与作品展示。',
 })
 </script>
